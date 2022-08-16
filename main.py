@@ -6,6 +6,14 @@ from platform import system
 def light_pattern(pattern: str, key: str) -> str:
     return pattern.replace(key, color_scheme[platform].format(key))
 
+def procced_reverse(pattern: list | str, key: str) -> list | str:
+    if isinstance(pattern, list):
+        if any(map(lambda x: key in x, pattern)):
+            return list(map(lambda x: light_pattern(x, key), pattern))
+    if key in pattern:
+        return light_pattern(pattern, key)
+
+
 def dive_in(dive: dict, req: str, reverse: bool) -> dict:
     result = {}
     for key in dive.keys():
@@ -17,9 +25,9 @@ def dive_in(dive: dict, req: str, reverse: bool) -> dict:
             if deep:
                 result[key] = deep
         elif reverse:
-            if req in dive[key]:
-                colored_line = light_pattern(dive[key], req)
-                result[key] = colored_line
+            matched_pattern = procced_reverse(dive[key], req)
+            if matched_pattern:
+                result[key] = matched_pattern
     return result
 
 
@@ -92,7 +100,7 @@ def main():
                 if index < len(commands_history):
                     request = commands_history[index]
             except ValueError:
-                print('\n', '\n'.join(f"{k} {c}" for k,c in enumerate(commands_history)), '\n')
+                print('\n', '\n'.join(f"{k} {c}" for k,c in enumerate(commands_history)), '\n',sep='')
                 continue
 
         if request in cross_commands[platform]:
