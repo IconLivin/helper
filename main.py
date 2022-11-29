@@ -92,7 +92,7 @@ def main():
         request = input("Enter request: ")
 
         if not request:
-            continue
+            request = "helper"
 
         add_to_history = True
 
