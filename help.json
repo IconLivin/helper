@@ -1,0 +1,25 @@
+{
+	"helper": {
+		"Description" : [
+			"Tool to keep and share some notes and search info with key.",
+			"Colorization of matched pattern is available on Linux (WSL also works), and on Terminal Windows application.",
+			"Use Ctrl-D or type exit to leave this tool"
+		],
+        "Usage" : [
+			"Provide a key and get info :)",
+            "Add additional markers to change output"
+		],
+		"Os commands" : [
+			"clear keyword will clean screen",
+			"upscr (stands for update script) keywoard will open editor to update",
+			"reread command will read again json config"
+		],
+        "Additional markers" : [
+            "Markers are added at the very ending of a request ex. nice cat -r",
+            "-r marker searches not only at keys, but also at values of dictionary",
+            "-fr marker excludes search at keys, and watches only at values, string or lists doesn't matter",
+            "-h<i> will take request from previous request on the session, if number is not provided will print history ex. -h0 will take first request",
+            "!(!) will take last request if provided only one exclamation mark, before last one if two and etc. Also can add additional symbols at the end ex. ! cat"
+        ]
+	}
+}
