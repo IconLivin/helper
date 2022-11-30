@@ -3,6 +3,7 @@ import os
 import sys
 from platform import system
 from enum import Enum, auto
+import re
 
 class Reversative(Enum):
     reverse = auto()
@@ -10,7 +11,7 @@ class Reversative(Enum):
     no = auto()
 
 def light_pattern(pattern: str, key: str) -> str:
-    return pattern.replace(key, "\033[32m{}\033[0m".format(key))
+    return pattern.replace(key, COLOR.format(key))
 
 def procced_reverse(pattern: list[str] | str, key: str) -> list[str] | str | None:
     if isinstance(pattern, list):
@@ -28,15 +29,14 @@ def dive_in(dive: JsonConfigAsDict, req: str, reverse: Reversative) -> JsonConfi
             colored_key = light_pattern(key, req)
             result[colored_key] = dive[key]
         elif isinstance(dive[key], dict):
-            deep = dive_in(dive[key], req, reverse)
+            deep = dive_in(dive[key], req, reverse) # type: ignore
             if deep:
-                result[key] = deep
+                result[key] = deep # type: ignore
         elif reverse in [Reversative.force_reverse, Reversative.reverse]:
-            matched_pattern = procced_reverse(dive[key], req)
+            matched_pattern = procced_reverse(dive[key], req) # type: ignore
             if matched_pattern:
-                result[key] = matched_pattern
+                result[key] = matched_pattern # type: ignore
     return result
-
 
 def print_dict(answer: dict, indent: int) -> None:
     for key in answer:
@@ -74,6 +74,8 @@ cross_commands = {
 }
 
 ERASE_TOP_AND_MOVE = '\x1b[1A\x1b[2K'
+COLOR = "\033[32m{}\033[0m"
+SPECIAL_CHAR = '\x1b'
 
 def main():
     with open(os.path.join(script_path, 'help.json'), 'r') as help:
@@ -90,6 +92,7 @@ def main():
             os.system(cross_commands[platform]["clear"])
 
         request = input("Enter request: ")
+        request = re.sub(r"\x1b[\[0-9a-zA-Z]{2}", "", request).strip()
 
         if not request:
             request = "helper"
@@ -99,7 +102,6 @@ def main():
         if request.startswith('!'):
             try:
                 request = commands_history[-1 * request.count('!')] + request.lstrip('!')
-                print(ERASE_TOP_AND_MOVE, f'Enter request: {request}', sep='')
                 add_to_history = False
             except IndexError:
                 print("Out of requests!")
@@ -111,7 +113,6 @@ def main():
                 index = int(request.strip('-h'))
                 if index < len(commands_history):
                     request = commands_history[index]
-                    print(ERASE_TOP_AND_MOVE, f'Enter request: {request}', sep='')
                     add_to_history = False
             except ValueError:
                 print('\n', '\n'.join(f"{k} {c}" for k,c in enumerate(commands_history)), '\n',sep='')
@@ -126,7 +127,7 @@ def main():
         if (x := request.strip(' ')).endswith('-r') or x.endswith('-fr'):
             reverse_option = Reversative.reverse if x.endswith('-r') else Reversative.force_reverse
             request = request.rstrip('-r').rstrip('-fr')
-
+        print(ERASE_TOP_AND_MOVE, f"Enter request: {COLOR.format(request)}", sep='')
         print()
         result = dive_in(helper, request.strip().lower(), reverse_option)
         print_dict(result, indent=1)
