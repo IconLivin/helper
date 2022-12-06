@@ -74,17 +74,50 @@ cross_commands = {
 }
 
 ERASE_TOP_AND_MOVE = '\x1b[1A\x1b[2K'
-COLOR = "\033[32m{}\033[0m"
+COLOR = "{}"
 SPECIAL_CHAR = '\x1b'
 
 def main():
-    with open(os.path.join(script_path, 'help.json'), 'r') as help:
+    global COLOR
+    with open(os.path.join(script_path, 'help.json'), 'r') as help,\
+        open(os.path.join(script_path, 'color_config.json'), 'r') as color_config:
         helper : JsonConfigAsDict = json.load(help)
+        colors : dict[str, str] = json.load(color_config)
+    border = colors.get("background", {}).get("Default", "{}")
+    COLOR = "\033" + border + "\033" + colors.get("text", {}).get("Default", "{}") + "{}\033[0m"
     request : str = ''
+
 
     commands_history : list[str] = []
 
     while request != "exit":
+
+        if request == "cchange":
+            os.system(cross_commands[platform]["clear"])
+            print("{:<17} {:<35}".format("TEXT COLOR", "BORDER"))
+            for (text, text_color), (bg, bg_color) in zip(colors.get("text", {}).items(), colors.get("background", {}).items()):
+                new_color = "\033" + text_color + "{}\033[0m"
+                new_border = "\033" + bg_color + "{}\033[0m"
+                print("{:<26} {:<35}".format(new_color.format(text), new_border.format(bg)))
+
+            print(f'\n{COLOR.format("CURRENT PATTERN")}')
+            color = '\033' + colors.get('text', {}).get('Default', '') + "{}\033[0m"
+            new_color = input(f"\nType new text color, {color.format('CURRENT TEXT')} (skip): ")
+            if new_color in colors.get("text", {}):
+                colors["text"]["Default"] = colors["text"][new_color]
+                COLOR = "\033" + colors["text"][new_color] + "{}\033[0m"
+                print('\x1b[3A\x1b[2K', f'{COLOR.format("CURRENT PATTERN")}', sep='', end='\n\n\n')
+            border  = '\033' + colors.get('background', {}).get('Default', '') + "{}\033[0m"
+            new_border = input(f"Type new text border, {border.format('CURRENT BORDER')} (skip): ")
+            if new_border in colors.get("background", {}):
+                colors["background"]["Default"] = colors["background"][new_border]
+                COLOR = "\033" + colors["background"]["Default"] + "\033" + colors["text"]["Default"] + "{}" + "\033[0m"
+                print('\x1b[4A\x1b[3K\x1b', f'{COLOR.format("CURRENT PATTERN")}', sep='', end='\n\n\n\n')
+            update_conf = input("Update default value on config (y/n): ")
+            if update_conf == 'y':
+                with open(os.path.join(script_path, 'color_config.json'), 'w') as color_config:
+                    json.dump(colors, color_config, indent=4)
+            os.system(cross_commands[platform]["clear"])
 
         if request == "reread":
             with open(os.path.join(script_path, 'help.json'), 'r') as help:

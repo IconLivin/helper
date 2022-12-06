@@ -1,0 +1,40 @@
+{
+    "text": {
+        "Black": "[39m",
+        "Dark red": "[31m",
+        "Dark green": "[32m",
+        "Dark yellow": "[33m",
+        "Dark blue": "[34m",
+        "Dark magenta": "[35m",
+        "Dark cyan": "[36m",
+        "Light gray": "[37m",
+        "Dark gray": "[90m",
+        "Red": "[91m",
+        "Green": "[92m",
+        "Orange": "[93m",
+        "Blue": "[94m",
+        "Magenta": "[95m",
+        "Cyan": "[96m",
+        "White": "[97m",
+        "Default": "[37m"
+    },
+    "background": {
+        "Black": "[40m",
+        "Dark red": "[41m",
+        "Dark green": "[42m",
+        "Dark yellow": "[43m",
+        "Dark blue": "[44m",
+        "Dark magenta": "[45m",
+        "Dark cyan": "[46m",
+        "Light gray": "[47m",
+        "Dark gray": "[100m",
+        "Red": "[101m",
+        "Green": "[102m",
+        "Orange": "[103m",
+        "Blue": "[104m",
+        "Magenta": "[105m",
+        "Cyan": "[106m",
+        "White": "[107m",
+        "Default": "[105m"
+    }
+}
