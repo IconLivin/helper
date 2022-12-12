@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import json
 import os
 import sys
@@ -96,22 +98,22 @@ def main():
             os.system(cross_commands[platform]["clear"])
             print("{:<17} {:<35}".format("TEXT COLOR", "BORDER"))
             for (text, text_color), (bg, bg_color) in zip(colors.get("text", {}).items(), colors.get("background", {}).items()):
-                new_color = "\033" + text_color + "{}\033[0m"
-                new_border = "\033" + bg_color + "{}\033[0m"
+                new_color = SPECIAL_CHAR + text_color + "{}\x1b[0m"
+                new_border = SPECIAL_CHAR + bg_color + "{}\x1b[0m"
                 print("{:<26} {:<35}".format(new_color.format(text), new_border.format(bg)))
 
             print(f'\n{COLOR.format("CURRENT PATTERN")}')
-            color = '\033' + colors.get('text', {}).get('Default', '') + "{}\033[0m"
+            color = SPECIAL_CHAR + colors.get('text', {}).get('Default', '') + "{}\x1b[0m"
             new_color = input(f"\nType new text color, {color.format('CURRENT TEXT')} (skip): ")
             if new_color in colors.get("text", {}):
                 colors["text"]["Default"] = colors["text"][new_color]
-                COLOR = "\033" + colors["text"][new_color] + "{}\033[0m"
+                COLOR = SPECIAL_CHAR + colors["text"][new_color] + "{}\033[0m"
                 print('\x1b[3A\x1b[2K', f'{COLOR.format("CURRENT PATTERN")}', sep='', end='\n\n\n')
-            border  = '\033' + colors.get('background', {}).get('Default', '') + "{}\033[0m"
+            border  = SPECIAL_CHAR + colors.get('background', {}).get('Default', '') + "{}\x1b[0m"
             new_border = input(f"Type new text border, {border.format('CURRENT BORDER')} (skip): ")
             if new_border in colors.get("background", {}):
                 colors["background"]["Default"] = colors["background"][new_border]
-                COLOR = "\033" + colors["background"]["Default"] + "\033" + colors["text"]["Default"] + "{}" + "\033[0m"
+                COLOR = SPECIAL_CHAR + colors["background"]["Default"] + SPECIAL_CHAR + colors["text"]["Default"] + "{}" + "\x1b[0m"
                 print('\x1b[4A\x1b[3K\x1b', f'{COLOR.format("CURRENT PATTERN")}', sep='', end='\n\n\n\n')
             update_conf = input("Update default value on config (y/n): ")
             if update_conf == 'y':
@@ -125,7 +127,7 @@ def main():
             os.system(cross_commands[platform]["clear"])
 
         request = input("Enter request: ")
-        request = re.sub(r"\x1b[\[0-9a-zA-Z]{2}", "", request).strip()
+        request = re.sub(r"\x1b\[A", "!", request).strip()
 
         if not request:
             request = "helper"
@@ -156,11 +158,12 @@ def main():
             os.system(cross_commands[platform][request])
             continue
 
+        print(ERASE_TOP_AND_MOVE, f"Enter request: {COLOR.format(request)}", sep='')
         reverse_option = Reversative.no
         if (x := request.strip(' ')).endswith('-r') or x.endswith('-fr'):
             reverse_option = Reversative.reverse if x.endswith('-r') else Reversative.force_reverse
             request = request.rstrip('-r').rstrip('-fr')
-        print(ERASE_TOP_AND_MOVE, f"Enter request: {COLOR.format(request)}", sep='')
+
         print()
         result = dive_in(helper, request.strip().lower(), reverse_option)
         print_dict(result, indent=1)
